@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from database import Base, engine, get_db
 from models import ProdutoDB
 from schemas import ProdutoCreate, ProdutoResponse
+from models import FilmeDB
+from schemas import FilmeCreate, FilmeResponse
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -74,3 +76,34 @@ def obter_filme(filme_id: int, db: Session = Depends(get_db)):
     if filme is None:
         raise HTTPException(status_code=404, detail='Filme não encontrado')
     return filme
+
+@app.post('/filmes', response_model=FilmeResponse, status_code=201)
+def criar_filme(filme: FilmeCreate, db: Session = Depends(get_db)):
+    novo_filme = FilmeDB(**filme.dict())
+    db.add(novo_filme)
+    db.commit()#realiza a ação de fato
+    db.refresh(novo_filme)
+    return novo_filme
+
+@app.delete('/filmes/{filme_id}', status_code=204)
+def remover_filme(filme_id: int, db: Session = Depends(get_db)):
+    filme = db.query(FilmeDB).filter(FilmeDB.id == filme_id).first()
+    if filme is None:
+        raise HTTPException(status_code=404, detail='Filme não encontrado')
+    db.delete(filme)
+    db.commit()
+    return 'filme_removido'
+
+@app.put('/filmes/{filme_id}', response_model=FilmeResponse)
+def atualizar_filme(filme_id: int, dados: FilmeCreate, db:
+    Session = Depends(get_db)):
+    filme = db.query(FilmeDB).filter(FilmeDB.id == filme_id).first()
+    if filme is None:
+        raise HTTPException(status_code=404, detail='Filme não encontrado')
+    filme.titulo = dados.nome
+    filme.diretor = dados.preco
+    filme.quantidade = dados.quantidade
+    db.commit()
+    db.refresh(filme)
+    return filme
+
