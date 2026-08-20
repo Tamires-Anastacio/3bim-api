@@ -60,5 +60,17 @@ def atualizar_produto(produto_id: int, dados: ProdutoCreate, db:
     produto.quantidade = dados.quantidade
     db.commit()
     db.refresh(produto)
-    return produt
+    return produto
 
+ #-------------------------------------------------------------------------------------
+
+@app.get('/filmes', response_model=list[FilmeResponse])
+def listar_filmes(db: Session = Depends(get_db)):
+    return db.query(FilmeDB).all()
+
+@app.get('/filme/{filme_id}', response_model=FilmeResponse)
+def obter_filme(filme_id: int, db: Session = Depends(get_db)):
+    filme = db.query(FilmeDB).filter(FilmeDB.id == filme_id).first()
+    if filme is None:
+        raise HTTPException(status_code=404, detail='Filme não encontrado')
+    return filme
