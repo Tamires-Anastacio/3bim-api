@@ -16,4 +16,4 @@ class FilmeDB(Base):
     titulo = Column(String(100), nullable=False)
     diretor = Column(String(100), nullable=False)
     genero = Column(String(100), nullable=False)
-    duracao_minutos = Column(Integer, nullable=False)
+    duracao_minutos = Column(String(100), nullable=False)
